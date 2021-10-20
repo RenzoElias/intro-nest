@@ -1,25 +1,34 @@
 import { Injectable } from '@nestjs/common';
 import { LibroI } from './interfaces/libro.interface';
+import {Model} from 'mongoose'
+import {InjectModel} from '@nestjs/mongoose'
 
 @Injectable()
 export class LibrosService {
-  buscarTodos(){
-    return 'Buscar todos los libros - Service'
+
+  constructor(@InjectModel('Libro') private readonly libroModel: Model<LibroI>) {}
+
+  // Devuelve una Promesa - De Tipo Objeto LibroI - este caso es array []
+  async buscarTodos(): Promise<LibroI[]> {
+    return await this.libroModel.find();
   }
 
-  buscarLibro(id: string){
-    return 'Un solo libro - Service'
+  async buscarLibro(id: string): Promise<LibroI>{
+    return await this.libroModel.findOne({_id: id});
   }
 
-  crearLibro(libro: LibroI) {
-    return 'Crear Libro - Service'
+  async crearLibro(libro: LibroI): Promise<LibroI> {
+    // console.log('Services');
+    // console.log(libro);
+    const nuevoLibro = new this.libroModel(libro);
+    return await nuevoLibro.save();
   }
 
-  modificarLibro(id: string, libro: LibroI){
-    return 'Modificar Libro - Service'
+  async modificarLibro(id: string, libro: LibroI): Promise<LibroI>{
+    return await this.libroModel.findByIdAndUpdate(id, libro, {new: true})
   }
 
-  borrarLibro(id: string){
-    return 'Borrar Libro - Service'
+  async borrarLibro(id: string): Promise<LibroI>{
+    return await this.libroModel.findByIdAndRemove(id);
   }
 }
